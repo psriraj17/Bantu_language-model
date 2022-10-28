@@ -8,7 +8,7 @@ import random
 import io
 
 
-
+# the code in this file is extracted from 'https://github.com/kscanne/5755/blob/master/lm/BantuLM.ipynb'
 
 def lstm_character(lang):
     text=file_to_text(lang+'-train.txt')
