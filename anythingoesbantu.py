@@ -9,16 +9,20 @@ import io
 
 
 
-def lstm_character(filename):
-    text=file_to_text(filename)
+def lstm_character(lang):
+    text=file_to_text(lang+'-train.txt')
+    ttext=file_to_text(lang+'-test.txt')
     chars=text_to_chars(text)
+    tchars=text_to_chars(ttext)
     charindices=char_indices(chars)
+    tcharindices=char_indices(tchars)
     indiceschar=indices_char(chars)
+    tindiceschar=indices_char(tchars)
 
 
 # cut the text in semi-redundant sequences of maxlen characters
-    maxlen = 40
-    step = 3
+    maxlen = 15
+    step = 2
     sentences = []
     next_chars = []
     for i in range(0, len(text) - maxlen, step):
@@ -44,7 +48,7 @@ def lstm_character(filename):
         layers.Dense(len(chars), activation="softmax"),
     ]
 )
-    optimizer = keras.optimizers.RMSprop(learning_rate=0.01)
+    optimizer = keras.optimizers.Adam(learning_rate=0.01)
     model.compile(loss="categorical_crossentropy", optimizer=optimizer)
 
     """
@@ -66,7 +70,7 @@ def lstm_character(filename):
 ## Train the model
 """
 
-    epochs = 40
+    epochs = 10
     batch_size = 128
 
     for epoch in range(epochs):
@@ -82,7 +86,7 @@ def lstm_character(filename):
             sentence = text[start_index : start_index + maxlen]
             print('...Generating with seed: "' + sentence + '"')
 
-            for i in range(400):
+            for i in range(100):
                 x_pred = np.zeros((1, maxlen, len(chars)))
                 for t, char in enumerate(sentence):
                     x_pred[0, t, charindices[char]] = 1.0
