@@ -1,6 +1,7 @@
 from tensorflow import keras
 from filetochars import char_indices, file_to_text, indices_char, text_to_chars
 from tensorflow.keras import layers
+from sklearn.model_selection import train_test_split
 
 import numpy as np
 import random
@@ -21,7 +22,7 @@ def lstm_character(lang):
 
 
 # cut the text in semi-redundant sequences of maxlen characters
-    maxlen = 15
+    maxlen = 10
     step = 2
     sentences = []
     next_chars = []
@@ -37,6 +38,9 @@ def lstm_character(lang):
             x[i, t, charindices[char]] = 1
         y[i, charindices[next_chars[i]]] = 1
 
+   
+    x_train, x_dev, y_train, y_dev = train_test_split(x, y, test_size=0.2, random_state = 42)
+
     """
 ## Build the model: a single LSTM layer
 """
@@ -49,7 +53,7 @@ def lstm_character(lang):
     ]
 )
     optimizer = keras.optimizers.Adam(learning_rate=0.01)
-    model.compile(loss="categorical_crossentropy", optimizer=optimizer)
+    model.compile(loss="categorical_crossentropy", optimizer=optimizer,metrics=['accuracy'])
 
     """
 ## Prepare the text sampling function
@@ -74,7 +78,7 @@ def lstm_character(lang):
     batch_size = 128
 
     for epoch in range(epochs):
-        model.fit(x, y, batch_size=batch_size, epochs=1)
+        model.fit(x_train, y_train, epochs=2, validation_data=(x_dev, y_dev),verbose=2)
         print()
         print("Generating text after epoch: %d" % epoch)
 
@@ -98,3 +102,4 @@ def lstm_character(lang):
 
             print("...Generated: ", generated)
             print()
+            
